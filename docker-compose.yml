@@ -1,0 +1,38 @@
+version: '3.4'
+
+services:
+
+  # region Postgres & MongoDB
+  db:
+    hostname: classifier_postgres
+    container_name: classifier_postgres
+    image: postgres:13.0
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - /var/lib/postgresql/data
+    ports:
+      - 5440:5432
+  api:
+    image: classifier_api
+    hostname: classifier_api
+    container_name: classifier_api
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    volumes:
+      - ./src:/app
+    command: >
+      sh -c "python manage.py makemigrations &&
+             python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8702
+             "
+    ports:
+      - 8702:8702
+    depends_on:
+    - db
+
+
+ 
